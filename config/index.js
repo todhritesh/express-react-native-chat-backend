@@ -6,4 +6,5 @@ module.exports = {
     MONGODB_URI : process.env.MONGODB_URI,
     DEBUG : process.env.DEBUG,
     JWT_SECRET : process.env.JWT_SECRET,
+    FCM_SERVER_KEY : process.env.FCM_SERVER_KEY,
 }

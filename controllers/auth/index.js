@@ -5,6 +5,7 @@ const JwtService = require('../../services/jwt')
 
 
 module.exports = class Auth {
+    
     static async singup (req,res,next) {
         try{
             const body = req.body
@@ -29,7 +30,8 @@ module.exports = class Auth {
 
     static async login (req,res,next) {
         try{
-            const {email,password} = req.body
+            console.log("first")
+            const {email,password,fcmToken} = req.body
             
             const user = await User.findOne({email:email})
             if(user){
@@ -43,33 +45,11 @@ module.exports = class Auth {
                     name:user.name
                 }
                 const token = JwtService.sign(payload)
-                return res.status(200).json({token,user:payload})
-            }
-
-            return next(CustomError.notFound("User not found"))
-    
-        }catch(err){
-            return next(err)
-        }
-    }
-
-
-    static async login (req,res,next) {
-        try{
-            const {email,password} = req.body
-            
-            const user = await User.findOne({email:email})
-            if(user){
-                const compare = await comparePassword(password,user.password)
-                if(!compare){
-                    return next(CustomError.invalidCredential())
+                if(fcmToken && !user?.fcmTokens.includes(fcmToken) ){
+                    user.fcmTokens.push(fcmToken)
+                    await user.save()
                 }
-                const payload = {
-                    email,
-                    _id:user._id,
-                    name:user.name
-                }
-                const token = JwtService.sign(payload)
+                console.log(fcmToken)
                 return res.status(200).json({token,user:payload})
             }
 

@@ -6,6 +6,7 @@ const {connectDB} = require('./db')
 const {PORT} = require('./config')
 const errorHandler = require('./middlewares/error-handler')
 
+
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));

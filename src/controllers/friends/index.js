@@ -4,6 +4,7 @@ const FriendRequest = require('../../models/friendRequest')
 const FriendModel = require('../../models/friend')
 const {Types} = require('mongoose')
 const sendNotification = require('../../services/fcm-notification')
+const NAVIGATIONROUTES = require('../../constants/navigation-routes')
 
 
 
@@ -37,11 +38,17 @@ module.exports = class Friend {
                     receiver:receiverId,
                 })
             }
+
             const notification = {
                 title:"New Friend Request",
-                body:`${req.user.name} sent you a friend request`
+                body:`${req.user.name} sent you a friend request`,
             }
-            await sendNotification(receiver.fcmTokens,notification)
+            const payload = {
+                NavigationScreen:NAVIGATIONROUTES.FriendRequests,
+                userId:req.user._id
+                
+            }
+            await sendNotification(receiver.fcmTokens,notification,payload)
             return res.status(200).json({ message: 'Friend request sent successfully.' });
         }catch(err){
             return next(err)

@@ -1,10 +1,10 @@
 const express = require('express')
 const cors = require('cors')
-const routes = require('./routes')
+const routes = require('./src/routes')
 const app = express()
-const {connectDB} = require('./db')
-const {PORT} = require('./config')
-const errorHandler = require('./middlewares/error-handler')
+const {connectDB} = require('./src/db')
+const {PORT} = require('./src/config')
+const errorHandler = require('./src/middlewares/error-handler')
 
 
 app.use(cors())

@@ -6,7 +6,7 @@ const {FCM_SERVER_KEY} = require('../../config')
 //     body: 'Notification Body',
 //   };
 
-async function sendNotification(fcmTokens,notification){
+async function sendNotification(fcmTokens,notification,payload){
     const axios = new Axios()
 
 
@@ -47,7 +47,7 @@ async function sendNotification(fcmTokens,notification){
                     'Authorization': FCM_SERVER_KEY,
                 },
                 body: JSON.stringify({
-                    to, notification
+                    to, notification,data:payload
                 }),
             })
             if((i+1)===fcmTokens.length){

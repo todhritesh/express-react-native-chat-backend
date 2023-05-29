@@ -105,6 +105,8 @@ module.exports = class Friend {
         try{
             const senderId = req.user._id
             const {receiverId} = req.body 
+
+            const receiver = await User.findOne({_id:receiverId})
             
             let newreceiverFriends
             let newSenderFriends
@@ -168,6 +170,16 @@ module.exports = class Friend {
                 if(newSenderFriends){
                     await newSenderFriends.save()
                 }
+                const notification = {
+                    title:"Friend Request Accepted",
+                    body:`${req.user.name} has accepted your friend request`,
+                }
+                const payload = {
+                    NavigationScreen:NAVIGATIONROUTES.Friends,
+                    userId:req.user._id
+                    
+                }
+                await sendNotification(receiver.fcmTokens,notification,payload)
                 return res.status(200).json({ message: 'Friend request accepted successfully.' });
             }
 

@@ -156,7 +156,6 @@ module.exports = class OneToOneChat {
         try{
             const senderId = req.user._id
             const {conversationId} = req.query
-            console.log(conversationId)
 
             const messages = await OneToOneMessage.find({conversationId},{},{sort:{createdAt:-1}}).populate({
                 path:'sender receiver',

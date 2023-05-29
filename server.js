@@ -5,6 +5,9 @@ const app = express()
 const {connectDB} = require('./src/db')
 const {PORT} = require('./src/config')
 const errorHandler = require('./src/middlewares/error-handler')
+const http = require('http');
+const {Server} = require('socket.io');
+const sockets = require('./src/socket')
 
 
 app.use(cors())
@@ -17,7 +20,15 @@ const runServer = async () => {
     try {
         await connectDB();
 
-        app.listen(PORT, () => console.log(`Server runnig on ${PORT}`))
+        const server = app.listen(PORT, () => console.log(`Server runnig on ${PORT}`))
+
+        const io = new Server(server, {
+            cors: {
+                origin: "*",
+            },
+        });
+        sockets(io)
+
 
     } catch (error) {
         console.error('Error starting server:', error);

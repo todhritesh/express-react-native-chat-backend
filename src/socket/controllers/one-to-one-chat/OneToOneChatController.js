@@ -16,11 +16,11 @@ module.exports = class OneToOneChatController extends BaseController {
     };
 
     one_to_one_typing_started = (room_id) => {
-        this.socket.to(room_id).emit("one_to_one_typing_started");
+        this.socket.to(room_id).emit("one_to_one_typing_started_from_server");
     };
 
     one_to_one_typing_stopped = (room_id) => {
-        this.socket.to(room_id).emit("one_to_one_typing_stopped");
+        this.socket.to(room_id).emit("one_to_one_typing_stopped_from_server");
     };
 
     // one_to_one_go_online = (room_id) => {

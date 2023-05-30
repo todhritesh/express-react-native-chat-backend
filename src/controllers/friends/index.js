@@ -115,8 +115,14 @@ module.exports = class Friend {
             let friend_request_status_result = 0
 
             const existingRequest = await FriendRequest.findOne({
-                sender : { $in: [senderId, receiverId] },
-                receiver : { $in: [senderId, receiverId] },
+                $or: [
+                    { sender: senderId },
+                    { sender: receiverId }
+                  ],
+                  $or: [
+                    { receiver: senderId },
+                    { receiver: receiverId }
+                  ],
                 status:'pending'
             })
 
@@ -152,7 +158,7 @@ module.exports = class Friend {
                 friend_request_status_result ++
             }
             if(senderFriends){
-                senderFriends.friends.push(senderId)
+                senderFriends.friends.push(receiverId)
                 friend_request_status_result ++
             }
 

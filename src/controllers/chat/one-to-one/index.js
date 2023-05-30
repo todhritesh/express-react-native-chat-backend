@@ -15,15 +15,19 @@ module.exports = class OneToOneChat {
         try{
             const senderId = req.user._id
             const {receiverId} = req.body
-            if(receiverId === senderId) return next(CustomErrorHandler.badRequest())
+            if(receiverId === senderId){
+                console.log('receiverId === senderId')
+                return next(CustomErrorHandler.badRequest())
+            }
             const receiver = await User.findOne({_id:receiverId}).select(['-password','-fcmTokens'])
             if(!receiver){
+                console.log('user nto fund - receiver')
                 return next(CustomErrorHandler.notFound('User not found'))
             }
 
             const existingConversation = await OneToOneConversation.findOne({
                 participants:{
-                    $in:[receiverId,senderId]
+                    $all:[receiverId,senderId]
                 }
             })
 
@@ -55,6 +59,8 @@ module.exports = class OneToOneChat {
     static async getConversations(req,res,next){
         try{
             const senderId = req.user._id
+
+            const {receiverId} = req.query
 
             // const existingConversations = await OneToOneConversation.aggregate([
             //     {
@@ -95,24 +101,45 @@ module.exports = class OneToOneChat {
             //         }
             //       }
             // ])
-            
-            const existingConversations = await OneToOneConversation.find({
-                participants:{
-                    $in:senderId
-                }
-            }).populate({
-                path:'participants',
-                select:'-password -fcmTokens',
-                match:{
-                    _id:{
-                        $ne:senderId
+
+            if(receiverId){
+                const existingConversations = await OneToOneConversation.findOne({
+                    participants:{
+                        $in:senderId
                     }
-                }
-            })
-            
-            return res.json({
-                conversations:existingConversations
-            })
+                }).populate({
+                    path:'participants',
+                    select:'-password -fcmTokens',
+                    match:{
+                        _id:{
+                            $ne:senderId
+                        }
+                    }
+                })
+                
+                return res.json({
+                    conversation:existingConversations
+                })
+            }else{
+                
+                const existingConversations = await OneToOneConversation.find({
+                    participants:{
+                        $in:senderId
+                    }
+                }).populate({
+                    path:'participants',
+                    select:'-password -fcmTokens',
+                    match:{
+                        _id:{
+                            $ne:senderId
+                        }
+                    }
+                })
+                
+                return res.json({
+                    conversations:existingConversations
+                })
+            }
         }catch(err){
             return next(err)
         }
@@ -124,6 +151,7 @@ module.exports = class OneToOneChat {
         try{
             const senderId = req.user._id
             const {receiverId,textMsg,messageType,conversationId} = req.body
+            const receiver = await User.findOne({_id:receiverId})
             let msg 
 
             if(!['Text','File'].includes(messageType)) return next(CustomErrorHandler.badRequest("messageType must be File or Text"))
@@ -140,6 +168,18 @@ module.exports = class OneToOneChat {
                 path:'sender receiver',
                 select:['-password','-fcmTokens']
             })
+
+            const notification = {
+                title:"New Message Received",
+                body:`${req.user.name} sent you a message`,
+            }
+            const payload = {
+                NavigationScreen:NAVIGATIONROUTES.Chat,
+                userId:req.user._id,
+                conversationId
+                
+            }
+            await sendNotification(receiver.fcmTokens,notification,payload)
             
             return res.json({
                 message

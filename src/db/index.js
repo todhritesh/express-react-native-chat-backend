@@ -30,4 +30,4 @@ const getDBConnection = () => {
   return mongoose.connection;
 };
 
-module.exports = { connectDB, getDBConnection };
+module.exports = { connectDB, getDBConnection }
